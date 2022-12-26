@@ -18,7 +18,7 @@
     ignore_errors: yes
 
   - name: "Копирование конфига mikrotik-ов"
-    command: scp -i /root/.ssh/id_rsa -oStrictHostKeyChecking=no {{ ansible_ssh_user }}@{{ ansible_ssh_host }}:{{ inventory_hostname }}.rsc /otp/ansible/mikrotik_bakup/{{ inventory_hostname }}/{{ inventory_hostnam$
+    command: scp -i /root/.ssh/id_rsa -oStrictHostKeyChecking=no {{ ansible_ssh_user }}@{{ ansible_ssh_host }}:{{ inventory_hostname }}.rsc /otp/ansible/mikrotik_bakup/{{ inventory_hostname }}/{{ inventory_hostname }}.rsc
     ignore_errors: yes
 
   - name: "пауза  3 секунды"
