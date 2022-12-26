@@ -1,0 +1,42 @@
+- hosts: mikrotik_backup_to_git_async
+  serial: 1
+  connection: local
+  #strategy: free
+  gather_facts: no
+
+  tasks:
+  - name: "Сохранение полного backup"
+    command: ssh -i /root/.ssh/id_rsa -oStrictHostKeyChecking=no {{ ansible_ssh_user }}@{{ ansible_ssh_host }} "/export terse file={{ inventory_hostname }}"
+    ignore_errors: yes
+
+  - name: "пауза  3 секунды"
+    local_action: pause seconds=3
+    ignore_errors: yes
+
+  - name: "Создание директории"
+    command: mkdir /opt/ansible/mikrotik_bakup/{{ inventory_hostname }}
+    ignore_errors: yes
+
+  - name: "Копирование конфига mikrotik-ов"
+    command: scp -i /root/.ssh/id_rsa -oStrictHostKeyChecking=no {{ ansible_ssh_user }}@{{ ansible_ssh_host }}:{{ inventory_hostname }}.rsc /otp/ansible/mikrotik_bakup/{{ inventory_hostname }}/{{ inventory_hostnam$
+    ignore_errors: yes
+
+  - name: "пауза  3 секунды"
+    local_action: pause seconds=3
+    ignore_errors: yes
+
+  - name: "Отправка конфигурации в git"
+    shell: |
+      git init
+      git remote add origin http://gitlab-ci-token:TOCKEN-HERE@git.COMPANY.COM/REPO/mikrotik_bakup.git
+      git add {{ inventory_hostname }}
+      git commit -m "backup rsc from {{ inventory_hostname }} $(date +"%Y-%m-%d %H:%M:%S")"
+      git push -u origin master
+      exit 0
+    ignore_errors: yes
+    args:
+	chdir: "/opt/ansible/mikrotik_bakup/"
+
+  - name: "Прибираемся за собой"
+    command: ssh -i /root/.ssh/id_rsa -oStrictHostKeyChecking=no {{ ansible_ssh_user }}@{{ ansible_ssh_host }} "file remove {{ inventory_hostname }}.rsc"
+    ignore_errors: yes
